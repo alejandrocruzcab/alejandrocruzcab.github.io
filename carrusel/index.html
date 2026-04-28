@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carrusel Artemis II</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #000000;
+            color: #ffffff;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .ig-post {
+            width: 100%;
+            max-width: 470px;
+            background-color: #000000;
+            border: 1px solid #262626;
+            border-radius: 3px;
+        }
+
+        /* Header */
+        .ig-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px;
+        }
+
+        .ig-user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .profile-pic {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2px;
+        }
+
+        .profile-inner {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background-color: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+            color: #fff;
+            border: 2px solid #000;
+        }
+
+        .username {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .more-options {
+            cursor: pointer;
+        }
+
+        /* Carousel Area */
+        .ig-media-container {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .carousel {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            scroll-behavior: smooth;
+            -ms-overflow-style: none;
+            /* IE and Edge */
+            scrollbar-width: none;
+            /* Firefox */
+        }
+
+        .carousel::-webkit-scrollbar {
+            display: none;
+        }
+
+        .slide {
+            flex: 0 0 100%;
+            width: 100%;
+            height: 100%;
+            scroll-snap-align: start;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            text-align: center;
+            padding: 15% 20px 20px 20px;
+        }
+
+        /* Text Overlays on Images */
+        .slide::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.5) 0%, transparent 50%, rgba(0, 0, 0, 0.3) 100%);
+            pointer-events: none;
+        }
+
+        .slide-content {
+            z-index: 2;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.9);
+        }
+
+        .slide h1 {
+            font-family: "Times New Roman", Times, serif;
+            font-size: 2.5rem;
+            font-weight: 400;
+            margin-bottom: 5px;
+            letter-spacing: 0.5px;
+        }
+
+        .slide h2 {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .slide p {
+            font-size: 1rem;
+            font-weight: 400;
+            opacity: 0.95;
+            letter-spacing: 0.5px;
+        }
+
+        /* Badges & Controls */
+        .slide-counter {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: #fff;
+            font-size: 12px;
+            padding: 5px 10px;
+            border-radius: 15px;
+            z-index: 10;
+        }
+
+        .nav-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.8);
+            color: #000;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            transition: opacity 0.2s;
+        }
+
+        .nav-btn.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .nav-prev {
+            left: 10px;
+        }
+
+        .nav-next {
+            right: 10px;
+        }
+
+        /* Pagination Dots in Media Container */
+        .dots-container {
+            position: absolute;
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 5px;
+            z-index: 10;
+        }
+
+        .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.4);
+            transition: background-color 0.2s;
+        }
+
+        .dot.active {
+            background-color: #0095f6;
+            transform: scale(1.1);
+        }
+
+        /* Footer */
+        .ig-footer {
+            padding: 14px;
+        }
+
+        .ig-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .ig-actions-left {
+            display: flex;
+            gap: 16px;
+        }
+
+        .icon {
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+
+        .icon:active {
+            transform: scale(0.9);
+        }
+
+        .likes {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .caption {
+            font-size: 14px;
+            line-height: 1.4;
+            margin-bottom: 8px;
+        }
+
+        .caption .user {
+            font-weight: 600;
+            margin-right: 5px;
+        }
+
+        .comments-link {
+            color: #a8a8a8;
+            font-size: 14px;
+            margin-bottom: 8px;
+            cursor: pointer;
+        }
+
+        .time {
+            color: #a8a8a8;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.2px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="ig-post">
+        <!-- Header -->
+        <div class="ig-header">
+            <div class="ig-user-info">
+                <div class="profile-pic">
+                    <div class="profile-inner">J</div>
+                </div>
+                <span class="username">Cruz_Ruano_Salguero</span>
+            </div>
+            <div class="more-options">
+                <svg aria-label="Más opciones" color="#ffffff" fill="#ffffff" height="24" role="img" viewBox="0 0 24 24"
+                    width="24">
+                    <circle cx="12" cy="12" r="1.5"></circle>
+                    <circle cx="6" cy="12" r="1.5"></circle>
+                    <circle cx="18" cy="12" r="1.5"></circle>
+                </svg>
+            </div>
+        </div>
+
+        <!-- Carousel -->
+        <div class="ig-media-container">
+            <div class="slide-counter" id="slide-counter">1/5</div>
+
+            <button class="nav-btn nav-prev hidden" id="prev-btn" onclick="scrollCarousel(-1)">&#10094;</button>
+            <button class="nav-btn nav-next" id="next-btn" onclick="scrollCarousel(1)">&#10095;</button>
+
+            <div class="carousel" id="carousel">
+                <div class="slide" style="background-image: url('slide1.png');">
+                    <div class="slide-content">
+                        <h1 style="font-size: 3rem;">Volvemos a la Luna</h1>
+                        <p>(Y esta vez, para quedarnos)</p>
+                    </div>
+                </div>
+                <div class="slide" style="background-image: url('slide2.png');">
+                    <div class="slide-content">
+                        <h2 style="font-size: 2.5rem;">4 Personas</h2>
+                        <p>El factor humano por encima del marketing.</p>
+                    </div>
+                </div>
+                <div class="slide" style="background-image: url('slide3.png');">
+                    <div class="slide-content">
+                        <h2 style="font-size: 2.5rem;">40.000 km/h</h2>
+                        <p>Una locura técnica a 2.200°C en la reentrada.</p>
+                    </div>
+                </div>
+                <div class="slide" style="background-image: url('slide4.png');">
+                    <div class="slide-content">
+                        <h2 style="font-size: 2.5rem;">Valentía pura</h2>
+                        <p>Confiando tu vida a una capa que se quema para protegerte.</p>
+                    </div>
+                </div>
+                <div class="slide" style="background-image: url('slide5.png');">
+                    <div class="slide-content">
+                        <h2 style="font-size: 2.5rem;">¿Demasiado cínicos?</h2>
+                        <p>Yo tengo el calendario marcado.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dots-container" id="dots">
+                <div class="dot active"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="ig-footer">
+            <div class="ig-actions">
+                <div class="ig-actions-left">
+                    <svg class="icon" aria-label="Me gusta" color="#ffffff" fill="#ffffff" height="24" role="img"
+                        viewBox="0 0 24 24" width="24">
+                        <path
+                            d="M16.792 3.904A4.989 4.989 0 0 1 21.5 9.122c0 3.072-2.652 4.959-5.197 7.222-2.512 2.243-3.865 3.469-4.303 3.752-.477-.309-2.143-1.823-4.303-3.752C5.141 14.072 2.5 12.167 2.5 9.122a4.989 4.989 0 0 1 4.708-5.218 4.21 4.21 0 0 1 3.675 1.941c.84 1.175.98 1.763 1.118 2.214.138-.451.278-1.039 1.118-2.214a4.21 4.21 0 0 1 3.673-1.941z"
+                            stroke="currentColor" stroke-width="2" fill="none"></path>
+                    </svg>
+                    <svg class="icon" aria-label="Comentar" color="#ffffff" fill="#ffffff" height="24" role="img"
+                        viewBox="0 0 24 24" width="24">
+                        <path d="M20.656 17.008a9.993 9.993 0 1 0-3.59 3.615L22 22Z" fill="none" stroke="currentColor"
+                            stroke-linejoin="round" stroke-width="2"></path>
+                    </svg>
+                    <svg class="icon" aria-label="Compartir" color="#ffffff" fill="#ffffff" height="24" role="img"
+                        viewBox="0 0 24 24" width="24">
+                        <line fill="none" stroke="currentColor" stroke-linejoin="round" stroke-width="2" x1="22"
+                            x2="9.218" y1="3" y2="10.083"></line>
+                        <polygon fill="none" points="11.698 20.334 22 3.001 2 3.001 9.218 10.084 11.698 20.334"
+                            stroke="currentColor" stroke-linejoin="round" stroke-width="2"></polygon>
+                    </svg>
+                </div>
+                <div>
+                    <svg class="icon" aria-label="Guardar" color="#ffffff" fill="#ffffff" height="24" role="img"
+                        viewBox="0 0 24 24" width="24">
+                        <polygon fill="none" points="20 21 12 13.44 4 21 4 3 20 3 20 21" stroke="currentColor"
+                            stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></polygon>
+                    </svg>
+                </div>
+            </div>
+
+            <div class="likes">2.487 Me gusta</div>
+
+            <div class="caption">
+                <span class="user">Cruz_Ruano_Salguero</span> 🚀 Hitos Virales | Artemis II no es solo otra misión
+                espacial, es el momento en que volvemos a ser exploradores de verdad. ... <span
+                    style="color: #a8a8a8; cursor: pointer;">más</span>
+            </div>
+
+            <div class="comments-link">Ver los 84 comentarios</div>
+            <div class="time">HACE 3 HORAS</div>
+        </div>
+    </div>
+
+    <script>
+        const carousel = document.getElementById('carousel');
+        const dots = document.querySelectorAll('.dot');
+        const counter = document.getElementById('slide-counter');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const totalSlides = dots.length;
+
+        // Intersection Observer for robust slide detection
+        const observerOptions = {
+            root: carousel,
+            threshold: 0.5
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const index = Array.from(carousel.children).indexOf(entry.target);
+                    updateUI(index);
+                }
+            });
+        }, observerOptions);
+
+        Array.from(carousel.children).forEach(slide => {
+            observer.observe(slide);
+        });
+
+        function updateUI(index) {
+            // Update dots
+            dots.forEach((dot, i) => {
+                dot.classList.toggle('active', i === index);
+            });
+
+            // Update counter
+            counter.textContent = `${index + 1}/${totalSlides}`;
+
+            // Update buttons
+            if (index === 0) {
+                prevBtn.classList.add('hidden');
+            } else {
+                prevBtn.classList.remove('hidden');
+            }
+
+            if (index === totalSlides - 1) {
+                nextBtn.classList.add('hidden');
+            } else {
+                nextBtn.classList.remove('hidden');
+            }
+        }
+
+        function scrollCarousel(direction) {
+            // Find current index based on scroll position
+            const slideWidth = carousel.offsetWidth;
+            const currentIndex = Math.round(carousel.scrollLeft / slideWidth);
+            const targetIndex = currentIndex + direction;
+
+            if (targetIndex >= 0 && targetIndex < totalSlides) {
+                carousel.scrollTo({
+                    left: targetIndex * slideWidth,
+                    behavior: 'smooth'
+                });
+            }
+        }
+    </script>
+</body>
+
+</html>
